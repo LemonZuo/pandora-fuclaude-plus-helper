@@ -8,6 +8,7 @@ import (
 	"PandoraPlusHelper/internal/util"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -71,10 +72,20 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 		// 普通用户openai登录
 		user, err := s.userRepository.GetUserByPassword(ctx, password)
 		if err != nil {
+			s.logger.Info(fmt.Sprintf("user %s login failed", password))
 			return -1, "", nil, "", v1.ErrLoginFailed
+		}
+		if user.Enable != 1 {
+			s.logger.Info(fmt.Sprintf("user %s is not enable", user.UniqueName))
+			return -1, "", nil, "", errors.New("登录失败")
 		}
 		account, err := s.openaiAccountRepository.GetAccountByUserId(ctx, user.ID)
 		if err != nil {
+			s.logger.Info(fmt.Sprintf("user %s has no account", user.UniqueName))
+			return -1, "", nil, "", errors.New("登录失败")
+		}
+		if account.Status != 1 {
+			s.logger.Info(fmt.Sprintf("account %d is not enable", account.ID))
 			return -1, "", nil, "", errors.New("登录失败")
 		}
 		return gptLogin(account.ShareToken, s, loginType)
@@ -89,10 +100,25 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 		// 普通用户claude登录
 		user, err := s.userRepository.GetUserByPassword(ctx, password)
 		if err != nil {
+			s.logger.Info(fmt.Sprintf("user %s login failed", password))
 			return -1, "", nil, "", v1.ErrLoginFailed
+		}
+		if user.Enable != 1 {
+			s.logger.Info(fmt.Sprintf("user %s is not enable", user.UniqueName))
+			return -1, "", nil, "", errors.New("登录失败")
+		}
+		account, err := s.claudeAccountRepository.GetAccountByUserId(ctx, user.ID)
+		if err != nil {
+			s.logger.Info(fmt.Sprintf("user %s has no account", user.UniqueName))
+			return -1, "", nil, "", errors.New("登录失败")
+		}
+		if account.Status != 1 {
+			s.logger.Info(fmt.Sprintf("account %d is not enable", account.ID))
+			return -1, "", nil, "", errors.New("登录失败")
 		}
 		token, err := s.claudeTokenRepository.GetToken(ctx, user.ClaudeToken)
 		if err != nil {
+			s.logger.Info(fmt.Sprintf("user %s has no token", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
 		}
 		return claudeLogin(token.SessionToken, user.UniqueName, s, 3)
