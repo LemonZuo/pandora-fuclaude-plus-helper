@@ -1,0 +1,10 @@
+storage/*
+.idea
+*.log
+deploy/docker-compose/conf
+deploy/docker-compose/data
+builds
+*.db
+frontend/package-lock.json
+frontend/node_modules
+frontend/dist
