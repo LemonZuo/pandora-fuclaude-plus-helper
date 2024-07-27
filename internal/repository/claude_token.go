@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"PandoraPlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/internal/model"
 	"context"
 	"time"
 )

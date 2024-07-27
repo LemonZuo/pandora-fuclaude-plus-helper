@@ -18,6 +18,12 @@
 
     "light": "亮色主题",
     "dark": "黑暗主题",
+    "refresh": "刷新",
+    "refreshConfirm": "刷新此账户?",
+    "deleteConfirm": "删除此账户?",
+    "welcomeBack": "欢迎回来\uD83D\uDC4B",
+    "desc": "管理你的OAI和Claude账户",
+    "goNow": "立即前往",
     "yes": "是",
     "no": "否",
     "apply": "应用",

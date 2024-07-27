@@ -1,7 +1,7 @@
 package service
 
 import (
-	"PandoraPlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/internal/repository"
 )
 
 type Coordinator struct {

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"context"
 )
 

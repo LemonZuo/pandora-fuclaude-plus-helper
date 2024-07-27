@@ -1,8 +1,8 @@
 package service
 
 import (
-	"PandoraPlusHelper/internal/model"
-	"PandoraPlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/internal/repository"
 	"context"
 	"errors"
 	"go.uber.org/zap"

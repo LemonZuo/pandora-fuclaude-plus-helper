@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"PandoraPlusHelper/api/v1"
-	"PandoraPlusHelper/internal/service"
+	"PandoraFuclaudePlusHelper/api/v1"
+	"PandoraFuclaudePlusHelper/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

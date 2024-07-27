@@ -1,13 +1,13 @@
 package server
 
 import (
-	"PandoraPlusHelper"
-	commonConfig "PandoraPlusHelper/config"
-	"PandoraPlusHelper/internal/handler"
-	"PandoraPlusHelper/internal/middleware"
-	"PandoraPlusHelper/pkg/jwt"
-	"PandoraPlusHelper/pkg/log"
-	"PandoraPlusHelper/pkg/server/http"
+	"PandoraFuclaudePlusHelper"
+	commonConfig "PandoraFuclaudePlusHelper/config"
+	"PandoraFuclaudePlusHelper/internal/handler"
+	"PandoraFuclaudePlusHelper/internal/middleware"
+	"PandoraFuclaudePlusHelper/pkg/jwt"
+	"PandoraFuclaudePlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/server/http"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	httpcore "net/http"
@@ -31,7 +31,7 @@ func NewHTTPServer(
 		http.WithServerPort(commonConfig.GetConfig().HttpPort),
 	)
 
-	s.Use(static.Serve("/", static.EmbedFolder(PandoraPlusHelper.EmbedFrontendFS, "frontend/dist")))
+	s.Use(static.Serve("/", static.EmbedFolder(PandoraFuclaudePlusHelper.EmbedFrontendFS, "frontend/dist")))
 
 	v1 := s.Group("/api")
 	{
@@ -44,7 +44,7 @@ func NewHTTPServer(
 					"status":  0,
 					"data": gin.H{
 						"version":    "1.0.0",
-						"systemName": "PandoraPlusHelper",
+						"systemName": "PandoraFuclaudePlusHelper",
 						"startTime":  commonConfig.GetConfig().StartTime.Format("2006-01-02 15:04:05"),
 						"status":     true,
 					},

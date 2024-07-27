@@ -1,8 +1,8 @@
 package util
 
 import (
-	commonConfig "PandoraPlusHelper/config"
-	"PandoraPlusHelper/pkg/log"
+	commonConfig "PandoraFuclaudePlusHelper/config"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"errors"
 	"fmt"
 	"github.com/go-resty/resty/v2"

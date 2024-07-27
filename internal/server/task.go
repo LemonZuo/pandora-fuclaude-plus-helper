@@ -1,11 +1,11 @@
 package server
 
 import (
-	"PandoraPlusHelper/internal/model"
-	"PandoraPlusHelper/internal/repository"
-	"PandoraPlusHelper/internal/service"
-	"PandoraPlusHelper/internal/util"
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/internal/service"
+	"PandoraFuclaudePlusHelper/internal/util"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"context"
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"

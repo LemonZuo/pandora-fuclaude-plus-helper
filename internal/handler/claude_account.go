@@ -1,8 +1,8 @@
 package handler
 
 import (
-	v1 "PandoraPlusHelper/api/v1"
-	"PandoraPlusHelper/internal/service"
+	v1 "PandoraFuclaudePlusHelper/api/v1"
+	"PandoraFuclaudePlusHelper/internal/service"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"

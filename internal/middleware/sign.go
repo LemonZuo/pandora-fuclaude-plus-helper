@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	v1 "PandoraPlusHelper/api/v1"
-	commonConfig "PandoraPlusHelper/config"
-	"PandoraPlusHelper/pkg/log"
+	v1 "PandoraFuclaudePlusHelper/api/v1"
+	commonConfig "PandoraFuclaudePlusHelper/config"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"github.com/duke-git/lancet/v2/cryptor"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"

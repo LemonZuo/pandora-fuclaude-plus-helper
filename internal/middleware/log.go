@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"bytes"
 	"github.com/duke-git/lancet/v2/cryptor"
 	"github.com/duke-git/lancet/v2/random"

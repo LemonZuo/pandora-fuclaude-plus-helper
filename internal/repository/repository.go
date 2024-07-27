@@ -1,9 +1,9 @@
 package repository
 
 import (
-	commonConfig "PandoraPlusHelper/config"
-	"PandoraPlusHelper/pkg/log"
-	"PandoraPlusHelper/pkg/zapgorm2"
+	commonConfig "PandoraFuclaudePlusHelper/config"
+	"PandoraFuclaudePlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/zapgorm2"
 	"context"
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"

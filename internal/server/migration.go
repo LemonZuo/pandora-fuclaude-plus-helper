@@ -1,8 +1,8 @@
 package server
 
 import (
-	"PandoraPlusHelper/internal/model"
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"context"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

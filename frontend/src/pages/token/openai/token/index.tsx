@@ -276,7 +276,7 @@ export default function TokenPage() {
       align: 'center',
       render: (_, record) => (
         <Button.Group>
-          <Popconfirm title={t('common.refreshConfirm')} okText="Yes" cancelText="No" placement="left" onConfirm={() => {
+          <Popconfirm title={t('common.refreshConfirm')} okText={t('common.yes')} cancelText={t('common.no')} placement="left" onConfirm={() => {
             setRefreshTokenId(record.id);
             refreshTokenMutation.mutate(record.id, {
               onSettled: () => setRefreshTokenId(undefined),
@@ -285,7 +285,7 @@ export default function TokenPage() {
             <Button key={record.id} icon={<ReloadOutlined />} type="primary" loading={refreshTokenId === record.id} style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}>{t('common.refresh')}</Button>
           </Popconfirm>
           <Button onClick={() => onEdit(record)} icon={<EditOutlined />} type="primary" />
-          <Popconfirm title={t('common.deleteConfirm')} okText="Yes" cancelText="No" placement="left" onConfirm={() => {
+          <Popconfirm title={t('common.deleteConfirm')} okText={t('common.yes')} cancelText={t('common.no')} placement="left" onConfirm={() => {
             setDeleteTokenId(record.id);
             deleteTokenMutation.mutate(record.id, {
               onSuccess: () => {

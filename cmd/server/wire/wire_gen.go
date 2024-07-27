@@ -7,15 +7,15 @@
 package wire
 
 import (
-	"PandoraPlusHelper/internal/handler"
-	"PandoraPlusHelper/internal/repository"
-	"PandoraPlusHelper/internal/server"
-	"PandoraPlusHelper/internal/service"
-	"PandoraPlusHelper/pkg/app"
-	"PandoraPlusHelper/pkg/jwt"
-	"PandoraPlusHelper/pkg/log"
-	"PandoraPlusHelper/pkg/server/http"
-	"PandoraPlusHelper/pkg/sid"
+	"PandoraFuclaudePlusHelper/internal/handler"
+	"PandoraFuclaudePlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/internal/server"
+	"PandoraFuclaudePlusHelper/internal/service"
+	"PandoraFuclaudePlusHelper/pkg/app"
+	"PandoraFuclaudePlusHelper/pkg/jwt"
+	"PandoraFuclaudePlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/server/http"
+	"PandoraFuclaudePlusHelper/pkg/sid"
 	"github.com/google/wire"
 )
 

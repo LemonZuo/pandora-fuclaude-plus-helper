@@ -1,6 +1,6 @@
 package v1
 
-import "PandoraPlusHelper/internal/model"
+import "PandoraFuclaudePlusHelper/internal/model"
 
 type SearchClaudeTokenRequest struct {
 	TokenName string `json:"tokenName"`

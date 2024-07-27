@@ -16,17 +16,17 @@ COPY --from=web-builder /app/dist ./frontend/dist
 ARG TARGETOS
 ARG TARGETARCH
 ENV CGO_ENABLED=0
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-s -w -extldflags '-static'" -o pandora-plus-helper ./cmd/server/main.go
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-s -w -extldflags '-static'" -o pandora-fuclaude-plus-helper ./cmd/server/main.go
 
 
 FROM alpine AS runner
 WORKDIR /app
-COPY --from=go-builder /app/pandora-plus-helper ./pandora-plus-helper
+COPY --from=go-builder /app/pandora-fuclaude-plus-helper ./pandora-fuclaude-plus-helper
 RUN apk update \
     && apk upgrade \
     && apk add --no-cache ca-certificates tzdata \
     && update-ca-certificates 2>/dev/null || true \
 RUN mkdir -p /data
-RUN ["chmod", "+x", "/app/pandora-plus-helper"]
-ENTRYPOINT ["/app/pandora-plus-helper"]
+RUN ["chmod", "+x", "/app/pandora-fuclaude-plus-helper"]
+ENTRYPOINT ["/app/pandora-fuclaude-plus-helper"]
 

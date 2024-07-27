@@ -230,7 +230,7 @@ export default function TokenPage() {
             style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
           >Chat</Button>
           <Button onClick={() => onEdit(record)} icon={<EditOutlined />} type="primary" />
-          <Popconfirm title={t('common.deleteConfirm')} okText="Yes" cancelText="No" placement="left" onConfirm={() => {
+          <Popconfirm title={t('common.deleteConfirm')} okText={t('common.yes')} cancelText={t('common.no')} placement="left" onConfirm={() => {
             setDeleteTokenId(record.id);
             deleteTokenMutation.mutate(record.id, {
               onSuccess: () => {

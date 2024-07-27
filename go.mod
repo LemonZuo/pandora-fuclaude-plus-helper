@@ -1,4 +1,4 @@
-module PandoraPlusHelper
+module PandoraFuclaudePlusHelper
 
 go 1.19
 

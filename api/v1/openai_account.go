@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"PandoraPlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/internal/model"
 )
 
 type SearchOpenaiAccountRequest struct {

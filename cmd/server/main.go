@@ -1,9 +1,9 @@
 package main
 
 import (
-	"PandoraPlusHelper/cmd/server/wire"
-	commonConfig "PandoraPlusHelper/config"
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/cmd/server/wire"
+	commonConfig "PandoraFuclaudePlusHelper/config"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"context"
 	"crypto/rand"
 	"errors"

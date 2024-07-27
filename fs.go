@@ -1,4 +1,4 @@
-package PandoraPlusHelper
+package PandoraFuclaudePlusHelper
 
 import "embed"
 

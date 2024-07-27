@@ -1,10 +1,10 @@
 package service
 
 import (
-	v1 "PandoraPlusHelper/api/v1"
-	"PandoraPlusHelper/internal/model"
-	"PandoraPlusHelper/internal/repository"
-	"PandoraPlusHelper/internal/util"
+	v1 "PandoraFuclaudePlusHelper/api/v1"
+	"PandoraFuclaudePlusHelper/internal/model"
+	"PandoraFuclaudePlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/internal/util"
 	"context"
 	"errors"
 	"go.uber.org/zap"

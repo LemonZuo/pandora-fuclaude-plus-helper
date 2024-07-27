@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"PandoraPlusHelper/pkg/jwt"
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/jwt"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"github.com/gin-gonic/gin"
 )
 

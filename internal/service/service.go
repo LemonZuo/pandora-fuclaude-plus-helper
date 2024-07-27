@@ -1,10 +1,10 @@
 package service
 
 import (
-	"PandoraPlusHelper/internal/repository"
-	"PandoraPlusHelper/pkg/jwt"
-	"PandoraPlusHelper/pkg/log"
-	"PandoraPlusHelper/pkg/sid"
+	"PandoraFuclaudePlusHelper/internal/repository"
+	"PandoraFuclaudePlusHelper/pkg/jwt"
+	"PandoraFuclaudePlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/sid"
 )
 
 type Service struct {

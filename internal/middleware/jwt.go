@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"PandoraPlusHelper/api/v1"
-	"PandoraPlusHelper/pkg/jwt"
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/api/v1"
+	"PandoraFuclaudePlusHelper/pkg/jwt"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"

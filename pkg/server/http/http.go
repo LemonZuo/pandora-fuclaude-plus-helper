@@ -1,7 +1,7 @@
 package http
 
 import (
-	"PandoraPlusHelper/pkg/log"
+	"PandoraFuclaudePlusHelper/pkg/log"
 	"context"
 	"errors"
 	"fmt"
