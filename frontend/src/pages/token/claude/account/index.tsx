@@ -1,13 +1,16 @@
 import {
   Button,
-  Card, Checkbox, CheckboxOptionType,
+  Card,
+  Checkbox,
+  CheckboxOptionType,
   Col,
   Form,
   Input,
   message,
   Popover,
   Row,
-  Space, Tooltip,
+  Space,
+  Tooltip,
 } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import {useEffect, useState} from 'react';
@@ -16,9 +19,9 @@ import {ClaudeAccount} from '#/entity.ts';
 import {
   CheckCircleOutlined, CloseCircleOutlined,
   EditOutlined,
-  OpenAIFilled,
   ReloadOutlined,
 } from "@ant-design/icons";
+import { siAnthropic } from 'simple-icons/icons';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {useSearchParams} from "@/router/hooks";
 import accountService from "@/api/services/claudeAccountService.ts";
@@ -36,6 +39,16 @@ type SearchFormFieldType = {
 const LOCAL_STORAGE_KEY = 'claude_share_page_visible_columns';
 
 export default function SharePage() {
+
+  const AnthropicIcon = () => {
+    return (
+      <div
+        dangerouslySetInnerHTML={{ __html: siAnthropic.svg }}
+        style={{ width: '16px', height: '16px', display: 'inline-block', verticalAlign: 'middle', fill: 'white' }}
+      />
+    );
+  };
+
   const queryClient = useQueryClient();
   const updateShareMutation = useUpdateAccountMutation()
 
@@ -153,13 +166,15 @@ export default function SharePage() {
       render: (_,record) => (
         <Button.Group>
           <Button
-            icon={<OpenAIFilled />}
+            icon={<AnthropicIcon />}
             type={"primary"}
             onClick={() => handleQuickLogin(record)}
             loading={chatAccountId === record.id}
             style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: 'white' }}
             disabled={record.status !== 1}
-          >Chat</Button>
+          >
+            Chat
+          </Button>
           <Button icon={<EditOutlined />} type={"primary"} onClick={() => onEdit(record)}></Button>
         </Button.Group>
       ),

@@ -10,14 +10,19 @@ import {
   Row,
   Space,
   Typography,
-  Checkbox, Popover, CheckboxOptionType, message, Spin
+  Checkbox,
+  Popover,
+  CheckboxOptionType,
+  message,
+  Spin
 } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import {
   DeleteOutlined,
-  EditOutlined, OpenAIFilled,
+  EditOutlined,
   ReloadOutlined
 } from "@ant-design/icons";
+import { siAnthropic } from 'simple-icons/icons';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
@@ -50,6 +55,16 @@ type SearchFormFieldType = Pick<ClaudeToken, 'tokenName'>;
 const LOCAL_STORAGE_KEY = 'claude_token_page_visible_columns';
 
 export default function TokenPage() {
+
+  const AnthropicIcon = () => {
+    return (
+      <div
+        dangerouslySetInnerHTML={{ __html: siAnthropic.svg }}
+        style={{ width: '16px', height: '16px', display: 'inline-block', verticalAlign: 'middle', fill: 'white' }}
+      />
+    );
+  };
+
   const queryClient = useQueryClient();
   const [searchForm] = Form.useForm();
   const { t } = useTranslation();
@@ -223,7 +238,7 @@ export default function TokenPage() {
       render: (_, record) => (
         <Button.Group>
           <Button
-            icon={<OpenAIFilled />}
+            icon={<AnthropicIcon />}
             type={"primary"}
             onClick={() => handleQuickLogin(record)}
             loading={chatTokenId === record.id}

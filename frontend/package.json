@@ -59,6 +59,7 @@
     "remark-gfm": "^3.0.1",
     "reset-css": "^5.0.2",
     "screenfull": "^6.0.2",
+    "simple-icons": "^13.3.0",
     "simplebar-react": "^3.2.4",
     "styled-components": "^6.0.9",
     "vite": "^4.4.11",
