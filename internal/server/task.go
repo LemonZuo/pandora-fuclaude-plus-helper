@@ -66,8 +66,9 @@ func (t *Task) refreshAccessToken(ctx context.Context, token *model.OpenaiToken)
 	plusSubscription := util.CheckSubscriptionStatus(token.AccessToken, t.log)
 	token.PlusSubscription = plusSubscription
 
+	now := time.Now()
 	expireAt := token.ExpireAt
-	later := time.Now().Add(time.Hour * 1)
+	later := now.Add(time.Hour * 1)
 	if expireAt.After(later) {
 		t.log.Info("Token not expired", zap.String("token", token.TokenName))
 	} else {
@@ -77,10 +78,10 @@ func (t *Task) refreshAccessToken(ctx context.Context, token *model.OpenaiToken)
 			t.log.Error("GenAccessToken error", zap.Any("err", err))
 		}
 		token.AccessToken = accessToken
-		token.ExpireAt = time.Unix(int64(expire), 0)
+		token.ExpireAt = now.Add(time.Second * time.Duration(expire))
 	}
 
-	token.UpdateTime = time.Now()
+	token.UpdateTime = now
 	err := t.openaiTokenRepository.Update(ctx, token)
 	if err != nil {
 		t.log.Error("Update Token error", zap.Any("err", err))

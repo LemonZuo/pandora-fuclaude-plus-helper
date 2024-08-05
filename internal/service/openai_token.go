@@ -56,7 +56,6 @@ func (s *openaiTokenService) Create(ctx context.Context, token *model.OpenaiToke
 	// 默认的类型处理
 	token.AccessToken = token.RefreshToken
 	token.PlusSubscription = 0
-	token.ExpireAt = now.Add(time.Hour * time.Duration(24*365))
 	// 使用RefreshToken生成AccessToken
 	accessToken, expiresIn, err := util.GenAccessToken(token.RefreshToken, s.logger)
 	if err != nil {
@@ -125,7 +124,6 @@ func (s *openaiTokenService) RefreshByToken(ctx context.Context, token *model.Op
 	his.TokenName = token.TokenName
 	his.AccessToken = token.RefreshToken
 	his.RefreshToken = token.RefreshToken
-	his.ExpireAt = now.Add(time.Hour * time.Duration(24*365))
 	// 使用RefreshToken生成AccessToken
 	accessToken, expiresIn, err := util.GenAccessToken(token.RefreshToken, s.logger)
 	if err != nil {
@@ -157,7 +155,6 @@ func (s *openaiTokenService) RefreshByToken(ctx context.Context, token *model.Op
 		now := time.Now()
 		// 默认设置为AccessToken
 		account.ShareToken = his.AccessToken
-		account.ExpireAt = now.Add(time.Hour * time.Duration(24*365))
 		shareToken, expireIn, err := util.GenShareToken(his.AccessToken,
 			account.Account,
 			0,
