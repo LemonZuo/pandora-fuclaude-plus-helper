@@ -1,4 +1,4 @@
-FROM node:16 as web-builder
+FROM node:16 AS web-builder
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm install
