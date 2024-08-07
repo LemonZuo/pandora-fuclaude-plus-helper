@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
-	"strings"
 )
 
 // GenAccessToken generates an access token based on the refresh token
@@ -209,28 +208,18 @@ func ExecuteClaudeAuth(sessionToken string, accountName string, logger *log.Logg
 	client := resty.New()
 	_, err := client.R().
 		SetHeader("Content-Type", "application/json").
-		SetHeader("Origin", commonConfig.GetConfig().ShareTokenAuth).
+		SetHeader("Origin", commonConfig.GetConfig().FuclaudeAuth).
 		SetBody(requestBody).
 		SetResult(&resp).
 		Post(commonConfig.GetConfig().FuclaudeAuthUrl)
 	if err != nil {
-		logger.Error("ExecuteShareAuth error", zap.Any("err", err))
+		logger.Error("ExecuteClaudeAuth error", zap.Any("err", err))
 		return "", err
 	}
 	if resp.LoginUrl == "" {
-		logger.Error("ExecuteShareAuth error", zap.Any("err", "login url is empty"))
+		logger.Error("ExecuteClaudeAuth error", zap.Any("err", "login url is empty"))
 		return "", errors.New("login url is empty")
 	}
-	logger.Info("ExecuteShareAuth resp", zap.Any("resp", resp))
+	logger.Info("ExecuteClaudeAuth resp", zap.Any("resp", resp))
 	return fmt.Sprintf("%s%s", commonConfig.GetConfig().FuclaudeAuth, resp.LoginUrl), nil
-}
-
-func CheckShareTokenType(shareToken string) int {
-	if shareToken == "" {
-		return -1
-	}
-	if strings.HasPrefix(shareToken, "sk-") {
-		return 2
-	}
-	return 1
 }

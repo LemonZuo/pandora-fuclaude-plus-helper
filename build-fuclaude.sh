@@ -21,7 +21,7 @@ else
 fi
 
 # VERSION
-VERSION=0.1.2
+VERSION=0.1.3
 
 # 创建并使用一个新的 Buildx 构建器实例，如果已存在则使用现有的
 BUILDER_NAME=multi-platform-build

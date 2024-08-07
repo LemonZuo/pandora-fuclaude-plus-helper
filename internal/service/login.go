@@ -39,8 +39,11 @@ type loginService struct {
 }
 
 func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, string, map[string]interface{}, string, error) {
+	// 登录类型
 	loginType := req.Type
+	// tokenId或者accountId，用于后台快捷登录
 	accountId := req.AccountId
+	// 密码：前台登录时所需
 	password := req.Password
 
 	if accountId <= 0 && len(password) == 0 {
