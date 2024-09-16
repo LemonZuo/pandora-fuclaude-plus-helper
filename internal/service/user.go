@@ -120,55 +120,58 @@ func (s *userService) Create(ctx context.Context, user *model.User) error {
 }
 
 func (s *userService) Update(ctx context.Context, user *model.User) error {
+	// 获取当前用户信息
 	his, err := s.userRepository.GetUser(ctx, user.ID)
 	if err != nil {
-		s.logger.Error("Update error", zap.Any("err", err))
+		s.logger.Error("Failed to get user", zap.Any("err", err))
 		return err
 	}
 
+	// 获取 OpenAI 账号信息
 	account, err := s.openaiAccountRepository.GetAccountByUserId(ctx, user.ID)
 	if err != nil {
-		s.logger.Error("GetAccountByUserId error", zap.Any("err", err))
+		s.logger.Error("Failed to get OpenAI account", zap.Any("err", err))
 	}
 
+	// 获取 Claude 账号信息
 	claudeAccount, err := s.claudeAccountRepository.GetAccountByUserId(ctx, user.ID)
 	if err != nil {
-		s.logger.Error("GetAccountByUserId error", zap.Any("err", err))
+		s.logger.Error("Failed to get Claude account", zap.Any("err", err))
 	}
 
-	// 处理 Enable 状态
+	// 处理用户启用状态
 	if user.Enable != 1 {
-		// 禁用用户
+		// 禁用用户的 OpenAI 和 Claude 服务
 		user.Openai = 0
 		user.Claude = 0
+
+		// 禁用 OpenAI 账号
 		if account != nil {
-			err := s.openaiAccountService.DisableAccount(ctx, account.ID)
-			if err != nil {
-				s.logger.Error("DisableAccount error", zap.Any("err", err))
+			if err := s.openaiAccountService.DisableAccount(ctx, account.ID); err != nil {
+				s.logger.Error("Failed to disable OpenAI account", zap.Any("err", err))
 				return err
 			}
 		}
+
+		// 禁用 Claude 账号
 		if claudeAccount != nil {
-			err := s.claudeAccountService.DisableAccount(ctx, claudeAccount.ID)
-			if err != nil {
-				s.logger.Error("DisableAccount error", zap.Any("err", err))
+			if err := s.claudeAccountService.DisableAccount(ctx, claudeAccount.ID); err != nil {
+				s.logger.Error("Failed to disable Claude account", zap.Any("err", err))
 				return err
 			}
 		}
 	} else {
-		// 处理 OpenAI
+		// 处理 OpenAI 服务
 		if user.Openai == 1 && user.OpenaiToken > 0 {
+			// 获取 OpenAI Token
 			token, err := s.openaiTokenRepository.GetToken(ctx, user.OpenaiToken)
-			if err != nil {
-				s.logger.Error("GetToken error", zap.Any("err", err))
-				return err
-			}
-			if token == nil {
-				s.logger.Error("token not found")
-				return errors.New("token not found")
+			if err != nil || token == nil {
+				s.logger.Error("OpenAI token not found", zap.Any("err", err))
+				return errors.New("OpenAI token not found")
 			}
 
 			if account == nil {
+				// 创建新的 OpenAI 账号
 				account = &model.OpenaiAccount{
 					UserId:            user.ID,
 					Account:           user.UniqueName,
@@ -180,84 +183,78 @@ func (s *userService) Update(ctx context.Context, user *model.User) error {
 					TemporaryChat:     0,
 					TokenID:           user.OpenaiToken,
 				}
-				err = s.openaiAccountService.Create(ctx, account)
-				if err != nil {
-					s.logger.Error("Create error", zap.Any("err", err))
-					return err
-				}
-			} else if his.OpenaiToken != user.OpenaiToken {
-				account.TokenID = user.OpenaiToken
-				account.ExpirationTime = user.ExpirationTime
-				account.Status = 1
-				err := s.openaiAccountService.Update(ctx, account)
-				if err != nil {
-					s.logger.Error("Update error", zap.Any("err", err))
+				if err := s.openaiAccountService.Create(ctx, account); err != nil {
+					s.logger.Error("Failed to create OpenAI account", zap.Any("err", err))
 					return err
 				}
 			} else {
-				err := s.openaiAccountService.EnableAccount(ctx, account.ID)
-				if err != nil {
-					s.logger.Error("EnableAccount error", zap.Any("err", err))
+				// 更新或启用现有的 OpenAI 账号
+				if his.OpenaiToken != user.OpenaiToken {
+					account.TokenID = user.OpenaiToken
+					account.ExpirationTime = user.ExpirationTime
+					account.Status = 1
+					if err := s.openaiAccountService.Update(ctx, account); err != nil {
+						s.logger.Error("Failed to update OpenAI account", zap.Any("err", err))
+						return err
+					}
+				} else if err := s.openaiAccountService.EnableAccount(ctx, account.ID); err != nil {
+					s.logger.Error("Failed to enable OpenAI account", zap.Any("err", err))
 					return err
 				}
 			}
 		} else if account != nil {
-			err := s.openaiAccountService.DisableAccount(ctx, account.ID)
-			if err != nil {
-				s.logger.Error("DisableAccount error", zap.Any("err", err))
+			// 禁用不需要的 OpenAI 账号
+			if err := s.openaiAccountService.DisableAccount(ctx, account.ID); err != nil {
+				s.logger.Error("Failed to disable OpenAI account", zap.Any("err", err))
 				return err
 			}
 		}
 
-		// 处理 Claude
+		// 处理 Claude 服务
 		if user.Claude == 1 && user.ClaudeToken > 0 {
+			// 获取 Claude Token
 			token, err := s.claudeTokenRepository.GetToken(ctx, user.ClaudeToken)
-			if err != nil {
-				s.logger.Error("GetToken error", zap.Any("err", err))
-				return err
-			}
-			if token == nil {
-				s.logger.Error("token not found")
-				return errors.New("token not found")
+			if err != nil || token == nil {
+				s.logger.Error("Claude token not found", zap.Any("err", err))
+				return errors.New("Claude token not found")
 			}
 
 			if claudeAccount == nil {
+				// 创建新的 Claude 账号
 				claudeAccount = &model.ClaudeAccount{
 					UserId:  user.ID,
 					Account: user.UniqueName,
 					Status:  1,
 					TokenID: user.ClaudeToken,
 				}
-				err = s.claudeAccountService.Create(ctx, claudeAccount)
-				if err != nil {
-					s.logger.Error("Create error", zap.Any("err", err))
-					return err
-				}
-			} else if his.ClaudeToken != user.ClaudeToken {
-				claudeAccount.TokenID = user.ClaudeToken
-				claudeAccount.Status = 1
-				err := s.claudeAccountService.Update(ctx, claudeAccount)
-				if err != nil {
-					s.logger.Error("Update error", zap.Any("err", err))
+				if err := s.claudeAccountService.Create(ctx, claudeAccount); err != nil {
+					s.logger.Error("Failed to create Claude account", zap.Any("err", err))
 					return err
 				}
 			} else {
-				err := s.claudeAccountService.EnableAccount(ctx, claudeAccount.ID)
-				if err != nil {
-					s.logger.Error("EnableAccount error", zap.Any("err", err))
+				// 更新或启用现有的 Claude 账号
+				if his.ClaudeToken != user.ClaudeToken {
+					claudeAccount.TokenID = user.ClaudeToken
+					claudeAccount.Status = 1
+					if err := s.claudeAccountService.Update(ctx, claudeAccount); err != nil {
+						s.logger.Error("Failed to update Claude account", zap.Any("err", err))
+						return err
+					}
+				} else if err := s.claudeAccountService.EnableAccount(ctx, claudeAccount.ID); err != nil {
+					s.logger.Error("Failed to enable Claude account", zap.Any("err", err))
 					return err
 				}
 			}
 		} else if claudeAccount != nil {
-			err := s.claudeAccountService.DisableAccount(ctx, claudeAccount.ID)
-			if err != nil {
-				s.logger.Error("DisableAccount error", zap.Any("err", err))
+			// 禁用不需要的 Claude 账号
+			if err := s.claudeAccountService.DisableAccount(ctx, claudeAccount.ID); err != nil {
+				s.logger.Error("Failed to disable Claude account", zap.Any("err", err))
 				return err
 			}
 		}
 	}
 
-	// 更新属性
+	// 更新用户信息
 	his.UniqueName = user.UniqueName
 	his.Password = user.Password
 	his.Enable = user.Enable
@@ -265,13 +262,16 @@ func (s *userService) Update(ctx context.Context, user *model.User) error {
 	his.OpenaiToken = user.OpenaiToken
 	his.Claude = user.Claude
 	his.ClaudeToken = user.ClaudeToken
+
+	// 更新过期时间（如果有）
 	if !user.ExpirationTime.IsZero() {
 		his.ExpirationTime = user.ExpirationTime
 	}
 	his.UpdateTime = time.Now()
-	err = s.userRepository.Update(ctx, his)
-	if err != nil {
-		s.logger.Error("Update error", zap.Any("err", err))
+
+	// 保存更新后的用户信息
+	if err := s.userRepository.Update(ctx, his); err != nil {
+		s.logger.Error("Failed to update user", zap.Any("err", err))
 		return err
 	}
 
