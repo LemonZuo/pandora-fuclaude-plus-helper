@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 记录构建开始时间
+start_time=$(date +%s)
+
 # 从 .env 文件中导入环境变量
 if [ -f ".env" ]; then
     export $(cat .env | sed 's/#.*//g' | xargs)
@@ -21,7 +24,7 @@ else
 fi
 
 # VERSION
-VERSION=$(date +%Y%m%d%H%M%S)
+VERSION=0.1.4
 
 # 创建并使用一个新的 Buildx 构建器实例，如果已存在则使用现有的
 BUILDER_NAME=multi-platform-build
@@ -40,3 +43,23 @@ docker buildx build \
 
 # 登出 Docker Hub
 docker logout
+
+# 记录构建结束时间
+end_time=$(date +%s)
+# 计算总耗时
+elapsed_time=$(( end_time - start_time ))
+
+# 判断运行的操作系统，分别采用兼容的日期命令
+if [[ "$(uname)" == "Darwin" ]]; then
+    # Mac OS 使用的date命令
+    start_fmt=$(date -r $start_time '+%Y-%m-%d %H:%M:%S')
+    end_fmt=$(date -r $end_time '+%Y-%m-%d %H:%M:%S')
+else
+    # Linux 使用的date命令
+    start_fmt=$(date -d @$start_time '+%Y-%m-%d %H:%M:%S')
+    end_fmt=$(date -d @$end_time '+%Y-%m-%d %H:%M:%S')
+fi
+
+echo "Build started at: $start_fmt"
+echo "Build finished at: $end_fmt"
+echo "Total build time: $elapsed_time seconds"
