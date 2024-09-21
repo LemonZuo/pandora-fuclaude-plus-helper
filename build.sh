@@ -23,9 +23,6 @@ else
     echo "Docker login successful."
 fi
 
-# VERSION
-VERSION=0.1.4
-
 # 创建并使用一个新的 Buildx 构建器实例，如果已存在则使用现有的
 BUILDER_NAME=multi-platform-build
 docker buildx create --name ${BUILDER_NAME} --use || true
