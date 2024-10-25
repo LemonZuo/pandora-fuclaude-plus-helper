@@ -17,6 +17,7 @@ import { NAV_COLLAPSED_WIDTH, NAV_WIDTH, HEADER_HEIGHT, OFFSET_HEADER_HEIGHT } f
 import Nav from './nav';
 
 import { ThemeLayout } from '#/enum';
+import {SystemInfo} from "@/layouts/_common/sys-info.tsx";
 
 type Props = {
   className?: string;
@@ -71,6 +72,7 @@ export default function Header({ className = '', offsetTop = false }: Props) {
           </div>
 
           <div className="flex">
+            <SystemInfo />
             <SearchBar />
             <LocalePicker />
             <IconButton onClick={() => window.open('https://github.com/LemonZuo/pandora-fuclaude-plus-helper')}>

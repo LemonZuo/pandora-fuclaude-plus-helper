@@ -15,18 +15,15 @@ import {
   Spin,
   Tooltip,
   Typography,
-  Checkbox, Popover, CheckboxOptionType, message
+  Checkbox, message, List, Drawer
 } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import {
-  CheckCircleOutlined,
-  DeleteOutlined,
+  CheckCircleOutlined, DeleteOutlined,
   EditOutlined,
-  FundOutlined,
-  MinusCircleOutlined,
+  FundOutlined, MinusCircleOutlined,
   QuestionCircleOutlined,
-  ReloadOutlined,
-  ShareAltOutlined
+  ReloadOutlined, ShareAltOutlined
 } from "@ant-design/icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +34,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-import { OpenaiAccount, OpenaiToken } from '#/entity.ts';
+import {OpenaiAccount, OpenaiToken} from '#/entity.ts';
 import tokenService, { OpenaiTokenAddReq } from "@/api/services/tokenService.ts";
 import accountService from "@/api/services/accountService.ts";
 import {
@@ -87,7 +84,7 @@ export default function TokenPage() {
         'expireAt', 'createTime', 'updateTime', 'share', 'operation'];
   });
   const [tempVisibleColumns, setTempVisibleColumns] = useState<(keyof OpenaiToken | 'operation' | 'share')[]>(visibleColumns);
-  const [popoverVisible, setPopoverVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const searchTokenName = Form.useWatch('tokenName', searchForm);
 
@@ -138,6 +135,10 @@ export default function TokenPage() {
       expirationTime: '',
       gpt35Limit: -1,
       gpt4Limit: -1,
+      gpt4oLimit: -1,
+      gpt4oMiniLimit: -1,
+      o1Limit: -1,
+      o1MiniLimit: -1,
       showConversations: 0,
       temporaryChat: 0,
     },
@@ -147,6 +148,10 @@ export default function TokenPage() {
     onOk: (values: OpenaiAccount, callback) => {
       values.gpt35Limit = parseInt(values.gpt35Limit as any);
       values.gpt4Limit = parseInt(values.gpt4Limit as any);
+      values.gpt4oLimit = parseInt(values.gpt4oLimit as any);
+      values.gpt4oMiniLimit = parseInt(values.gpt4oMiniLimit as any);
+      values.o1Limit = parseInt(values.o1Limit as any);
+      values.o1MiniLimit = parseInt(values.o1MiniLimit as any);
       callback(true);
       addAccountMutation.mutate(values, {
         onSuccess: () => {
@@ -188,10 +193,9 @@ export default function TokenPage() {
       dataIndex: 'tokenName',
       align: 'center',
       ellipsis: true,
+      width: 200,
       render: (text) => (
-        <Typography.Text style={{ maxWidth: 200 }} ellipsis={true}>
-          {text}
-        </Typography.Text>
+        <CopyToClipboardInput text={text} showTooltip={true} />
       )
     },
     {
@@ -305,31 +309,29 @@ export default function TokenPage() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
-  const handleVisibilityChange = (checkedValues: (keyof OpenaiToken | 'operation' | 'share')[]) => {
-    setTempVisibleColumns(checkedValues);
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const onDrawerClose = () => {
+    setDrawerVisible(false);
+    setTempVisibleColumns(visibleColumns);
   };
 
   const applyColumnVisibility = () => {
     setVisibleColumns(tempVisibleColumns);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tempVisibleColumns));
-    setPopoverVisible(false);
+    setDrawerVisible(false);
   };
 
-  const columnVisibilityContent = (
-    <div style={{ maxWidth: 110 }}>
-      <Checkbox.Group
-        options={columns.map(col => ({ label: col.title, value: col.key })) as CheckboxOptionType<keyof OpenaiToken | "operation" | "share">[]}
-        value={tempVisibleColumns}
-        onChange={handleVisibilityChange}
-        style={{display: 'block'}}
-      />
-      <div style={{ marginTop: 8, textAlign: 'right' }}>
-        <Button size="small" type="primary" onClick={applyColumnVisibility}>
-          {t('common.apply')}
-        </Button>
-      </div>
-    </div>
-  );
+  const selectAll = () => {
+    const allColumnKeys = columns.map(col => col.key as keyof OpenaiToken | 'operation');
+    setTempVisibleColumns(allColumnKeys);
+  };
+
+  const deselectAll = () => {
+    setTempVisibleColumns([]);
+  };
 
   const visibleColumnsConfig = columns.filter(col =>
     col.key && visibleColumns.includes(col.key as keyof OpenaiToken | 'operation' | 'share')
@@ -385,15 +387,16 @@ export default function TokenPage() {
         <Form form={searchForm}>
           <Row gutter={[16, 16]}>
             <Col span={6} lg={6}>
-              <Form.Item<SearchFormFieldType> label={t('token.tokenName')} name="tokenName" className="!mb-0">
-                <Input />
+              <Form.Item<SearchFormFieldType> label={t('token.tokenName')} name="tokenName"
+                                              className="!mb-0">
+                <Input/>
               </Form.Item>
             </Col>
             <Col span={18} lg={18}>
               <div className="flex justify-end">
                 <Space>
                   <Button onClick={onSearchFormReset}>{t('token.reset')}</Button>
-                  <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
+                  <Button icon={<ReloadOutlined/>} onClick={handleRefresh}>
                     {t('common.refresh')}
                   </Button>
                 </Space>
@@ -407,17 +410,9 @@ export default function TokenPage() {
         title={t("token.accountList")}
         extra={
           <Space>
-            <Popover
-              content={columnVisibilityContent}
-              title={t("token.selectColumns")}
-              trigger="click"
-              open={popoverVisible}
-              onOpenChange={setPopoverVisible}
-            >
-              <Button>
-                {t("token.adjustDisplay")}
-              </Button>
-            </Popover>
+            <Button onClick={showDrawer}>
+              {t("token.adjustDisplay")}
+            </Button>
             <Button type="primary" onClick={onCreate}>
               {t("token.createNew")}
             </Button>
@@ -434,6 +429,107 @@ export default function TokenPage() {
           loading={isLoading}
         />
       </Card>
+
+      <Drawer
+        title={t("token.selectColumns")}
+        placement="right"
+        onClose={onDrawerClose}
+        open={drawerVisible}
+        width={260} // 可以稍微减小宽度，因为我们去掉了额外的描述文本
+        extra={
+          <Space>
+            <Button onClick={applyColumnVisibility} type="primary">
+              {t('common.apply')}
+            </Button>
+          </Space>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <Space>
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={selectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#e6f7ff', // 柔和的蓝色背景
+                  borderColor: '#91d5ff', // 边框颜色
+                  color: '#1890ff', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#bae7ff';
+                  e.currentTarget.style.borderColor = '#40a9ff';
+                  e.currentTarget.style.color = '#096dd9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6f7ff';
+                  e.currentTarget.style.borderColor = '#91d5ff';
+                  e.currentTarget.style.color = '#1890ff';
+                }}
+              >
+                {t('common.selectAll')}
+              </Button>
+
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={deselectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#fff1f0', // 柔和的红色背景
+                  borderColor: '#ffa39e', // 边框颜色
+                  color: '#ff4d4f', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffa39e';
+                  e.currentTarget.style.borderColor = '#ff7875';
+                  e.currentTarget.style.color = '#a8071a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff1f0';
+                  e.currentTarget.style.borderColor = '#ffa39e';
+                  e.currentTarget.style.color = '#ff4d4f';
+                }}
+              >
+                {t('common.deselectAll')}
+              </Button>
+            </Space>
+          </div>
+          <List
+            style={{
+              flexGrow: 1,
+              overflowY: 'auto',
+            }}
+            dataSource={columns}
+            renderItem={col => (
+              <List.Item style={{ border: 'none', padding: '8px 0' }}> {/* 移除边框 */}
+                <Checkbox
+                  checked={tempVisibleColumns.includes(col.key as keyof OpenaiToken | 'operation')}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      setTempVisibleColumns([...tempVisibleColumns, col.key as keyof OpenaiToken | 'operation']);
+                    } else {
+                      setTempVisibleColumns(tempVisibleColumns.filter(k => k !== col.key));
+                    }
+                  }}
+                  style={{ width: '100%' }} // 让 Checkbox 占满整行
+                >
+                  {typeof col.title === 'function' ? col.title({}) : col.title}
+                </Checkbox>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Drawer>
+
       <TokenModal {...TokenModalProps} />
       <AccountModal {...shareModalProps} />
       <AccountInfoModal {...shareInfoModalProps} />
@@ -494,52 +590,89 @@ export const AccountModal = ({ title, show, isEdit, formValue, onOk, onCancel }:
       }}
       destroyOnClose={true}
     >
-      <Form
-        form={form}
-        layout="vertical"
-      >
-        <Form.Item<OpenaiAccount> name="id" hidden>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> name="userId" hidden>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> name="tokenId" hidden>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> name="status" hidden>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> label="OpenaiAccount" name="account" required>
-          <Input readOnly={isEdit} disabled={isEdit} autoComplete="off"/>
-        </Form.Item>
-        <Form.Item label={t('token.expirationTime')} name="expirationTime" required>
-          <DatePicker
-            style={{ width: '100%' }}
-            format="YYYY-MM-DD HH:mm:ss"
-            disabledDate={current => current && current < dayjs().endOf('day')}
-            showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
-            disabled={isEdit}
-          />
-        </Form.Item>
-        <Form.Item<OpenaiAccount> label={t('token.gpt35Limit')} name="gpt35Limit" required>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> label={t('token.gpt4Limit')} name="gpt4Limit" required>
-          <Input/>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> label={t('token.showConversations')} name="showConversations" initialValue={0} required>
-          <Select allowClear>
-            <Option value={1}>{t('common.yes')}</Option>
-            <Option value={0}>{t('common.no')}</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item<OpenaiAccount> label={t('token.temporaryChat')} name="temporaryChat" initialValue={0} required>
-          <Select allowClear>
-            <Option value={1}>{t('common.yes')}</Option>
-            <Option value={0}>{t('common.no')}</Option>
-          </Select>
-        </Form.Item>
+      <Form form={form} layout="vertical">
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item<OpenaiAccount> name="id" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item<OpenaiAccount> name="userId" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item<OpenaiAccount> name="tokenId" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item<OpenaiAccount> name="status" hidden>
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label="OpenaiAccount" name="account" required>
+              <Input readOnly={isEdit} disabled={isEdit} autoComplete="off" />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item label={t('token.expirationTime')} name="expirationTime" required>
+              <DatePicker
+                style={{ width: '100%' }}
+                format="YYYY-MM-DD HH:mm:ss"
+                disabledDate={current => current && current < dayjs().endOf('day')}
+                showTime={{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }}
+                disabled={isEdit}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.showConversations')} name="showConversations" initialValue={0} required>
+              <Select allowClear>
+                <Option value={1}>{t('common.yes')}</Option>
+                <Option value={0}>{t('common.no')}</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.temporaryChat')} name="temporaryChat" initialValue={0} required>
+              <Select allowClear>
+                <Option value={1}>{t('common.yes')}</Option>
+                <Option value={0}>{t('common.no')}</Option>
+              </Select>
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.gpt4Limit')} name="gpt4Limit" required>
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.gpt4oLimit')} name="gpt4oLimit" required>
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.gpt4oMiniLimit')} name="gpt4oMiniLimit" required>
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.o1Limit')} name="o1Limit" required>
+              <Input />
+            </Form.Item>
+          </Col>
+
+          <Col span={12}>
+            <Form.Item<OpenaiAccount> label={t('token.o1MiniLimit')} name="o1MiniLimit" required>
+              <Input />
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
     </Modal>
   );

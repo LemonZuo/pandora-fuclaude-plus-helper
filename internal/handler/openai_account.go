@@ -45,7 +45,7 @@ func (h *OpenaiAccountHandler) CreateAccount(ctx *gin.Context) {
 	expTime, err := time.ParseInLocation(layout, req.ExpirationTime, loc)
 	if err != nil {
 		// 如果时间解析错误，返回400错误
-		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("invalid expiration time format: %v", err), nil)
+		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("时间格式错误: %v", err), nil)
 		return
 	}
 
@@ -57,6 +57,10 @@ func (h *OpenaiAccountHandler) CreateAccount(ctx *gin.Context) {
 		Status:            req.Status,
 		Gpt35Limit:        req.Gpt35Limit,
 		Gpt4Limit:         req.Gpt4Limit,
+		Gpt4oLimit:        req.Gpt4oLimit,
+		Gpt4oMiniLimit:    req.Gpt4oMiniLimit,
+		O1Limit:           req.O1Limit,
+		O1MiniLimit:       req.O1MiniLimit,
 		ShowConversations: req.ShowConversations,
 		TemporaryChat:     req.TemporaryChat,
 		TokenID:           req.TokenID,
@@ -85,7 +89,7 @@ func (h *OpenaiAccountHandler) UpdateAccount(ctx *gin.Context) {
 	expTime, err := time.ParseInLocation(layout, req.ExpirationTime, loc)
 	if err != nil {
 		// 如果时间解析错误，返回400错误
-		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("invalid expiration time format: %v", err), nil)
+		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("时间格式错误: %v", err), nil)
 		return
 	}
 
@@ -97,6 +101,10 @@ func (h *OpenaiAccountHandler) UpdateAccount(ctx *gin.Context) {
 		Status:            req.Status,
 		Gpt35Limit:        req.Gpt35Limit,
 		Gpt4Limit:         req.Gpt4Limit,
+		Gpt4oLimit:        req.Gpt4oLimit,
+		Gpt4oMiniLimit:    req.Gpt4oMiniLimit,
+		O1Limit:           req.O1Limit,
+		O1MiniLimit:       req.O1MiniLimit,
 		ShowConversations: req.ShowConversations,
 		TemporaryChat:     req.TemporaryChat,
 		TokenID:           req.TokenID,

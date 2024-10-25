@@ -7,8 +7,7 @@ RUN DISABLE_ESLINT_PLUGIN='true' npm run build
 
 FROM golang AS go-builder
 WORKDIR /app
-ENV GO111MODULE=on \
-    GOPROXY=https://goproxy.cn,direct
+ENV GO111MODULE=on
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
@@ -16,8 +15,7 @@ COPY --from=web-builder /app/dist ./frontend/dist
 ARG TARGETOS
 ARG TARGETARCH
 ENV CGO_ENABLED=0
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-s -w -extldflags '-static'" -o pandora-fuclaude-plus-helper ./cmd/server/main.go
-
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -ldflags "-s -w -X 'PandoraFuclaudePlusHelper/config.Version=$(cat VERSION)' -extldflags '-static'" -o pandora-fuclaude-plus-helper ./cmd/server/main.go
 
 FROM alpine AS runner
 WORKDIR /app

@@ -84,6 +84,10 @@ export interface OpenaiAccount {
   tokenId: number;
   gpt35Limit: number;
   gpt4Limit: number;
+  gpt4oLimit: number;
+  gpt4oMiniLimit: number;
+  o1Limit: number;
+  o1MiniLimit: number;
   showConversations: 1 | 0;
   temporaryChat: 0 | 1;
   shareToken?: string;

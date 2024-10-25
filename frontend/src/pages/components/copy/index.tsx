@@ -1,13 +1,14 @@
 import React from 'react';
-import { Input, Button, message } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
+import {Input, Button, message, Tooltip} from 'antd';
+import {CopyOutlined} from '@ant-design/icons';
 
 // 定义组件的 props 类型
 interface CopyToClipboardInputProps {
   text: string;  // 指定 text 为 string 类型
+  showTooltip?: boolean;
 }
 
-const CopyToClipboardInput: React.FC<CopyToClipboardInputProps> = ({ text }) => {
+const CopyToClipboardInput: React.FC<CopyToClipboardInputProps> = ({text, showTooltip = false}) => {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -18,10 +19,16 @@ const CopyToClipboardInput: React.FC<CopyToClipboardInputProps> = ({ text }) => 
   };
 
   return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-        <Input value={text} readOnly style={{ flex: 1 }} />
-        <Button icon={<CopyOutlined />} onClick={() => handleCopy(text)} />
-      </div>
+    <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+      {showTooltip ? (
+        <Tooltip title={text} placement="top">
+          <Input value={text} readOnly style={{flex: 1}}/>
+        </Tooltip>
+      ) : (
+        <Input value={text} readOnly style={{flex: 1}}/>
+      )}
+      <Button icon={<CopyOutlined/>} onClick={() => handleCopy(text)}/>
+    </div>
   );
 };
 

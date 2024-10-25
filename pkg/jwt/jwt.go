@@ -1,10 +1,8 @@
 package jwt
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	commonConfig "PandoraFuclaudePlusHelper/config"
 	"errors"
-	"fmt"
 	"regexp"
 	"time"
 
@@ -20,29 +18,9 @@ type MyCustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-func generateRandomJwtSecret(length int) (string, error) {
-	// 创建一个用于存储随机字节的切片
-	randomBytes := make([]byte, length)
-	// 使用crypto/rand库生成随机字节
-	_, err := rand.Read(randomBytes)
-	if err != nil {
-		return "", fmt.Errorf("生成随机JWT密钥时出错: %v", err)
-	}
-
-	// 将随机字节转换为十六进制字符串
-	randomHex := hex.EncodeToString(randomBytes)
-
-	return randomHex, nil
-}
-
 func NewJwt() *JWT {
-	// 随机生成一个Jwt密钥
-	jwtSecret, err := generateRandomJwtSecret(32)
-	if err != nil {
-		panic(err)
-	}
 	return &JWT{
-		key: []byte(jwtSecret),
+		key: []byte(commonConfig.GetConfig().Secret),
 	}
 }
 

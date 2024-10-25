@@ -78,6 +78,7 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 			s.logger.Info(fmt.Sprintf("user %s login failed", password))
 			return -1, "", nil, "", v1.ErrLoginFailed
 		}
+		// 用户表被禁用
 		if user.Enable != 1 {
 			s.logger.Info(fmt.Sprintf("user %s is not enable", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
@@ -87,6 +88,7 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 			s.logger.Info(fmt.Sprintf("user %s has no account", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
 		}
+		// 账号被禁用
 		if account.Status != 1 {
 			s.logger.Info(fmt.Sprintf("account %d is not enable", account.ID))
 			return -1, "", nil, "", errors.New("登录失败")
@@ -106,6 +108,7 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 			s.logger.Info(fmt.Sprintf("user %s login failed", password))
 			return -1, "", nil, "", v1.ErrLoginFailed
 		}
+		// 用户表被禁用
 		if user.Enable != 1 {
 			s.logger.Info(fmt.Sprintf("user %s is not enable", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
@@ -115,6 +118,7 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 			s.logger.Info(fmt.Sprintf("user %s has no account", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
 		}
+		// 账号被禁用
 		if account.Status != 1 {
 			s.logger.Info(fmt.Sprintf("account %d is not enable", account.ID))
 			return -1, "", nil, "", errors.New("登录失败")
@@ -124,7 +128,16 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 			s.logger.Info(fmt.Sprintf("user %s has no token", user.UniqueName))
 			return -1, "", nil, "", errors.New("登录失败")
 		}
-		return claudeLogin(token.SessionToken, user.UniqueName, s, 3)
+		expireAt := user.ExpirationTime
+		now := time.Now()
+		// 计算剩余秒数
+		seconds := int(expireAt.Sub(now).Seconds())
+		if seconds < 0 {
+			s.logger.Info(fmt.Sprintf("user %s token expired", user.UniqueName))
+			return -1, "", nil, "", errors.New("登录失败")
+		}
+
+		return claudeLogin(token.SessionToken, user.UniqueName, s, 3, seconds)
 	case 4:
 		// 管理员 claud account 快捷登录
 		account, err := s.claudeAccountRepository.GetAccountById(ctx, accountId)
@@ -135,14 +148,14 @@ func (s *loginService) Login(ctx context.Context, req *v1.LoginRequest) (int, st
 		if err != nil {
 			return -1, "", nil, "", errors.New("账号不存在")
 		}
-		return claudeLogin(token.SessionToken, account.Account, s, 4)
+		return claudeLogin(token.SessionToken, account.Account, s, 4, -1)
 	case 5:
 		// 管理员 claud token 快捷登录
 		token, err := s.claudeTokenRepository.GetToken(ctx, accountId)
 		if err != nil {
 			return -1, "", nil, "", errors.New("账号不存在")
 		}
-		return claudeLogin(token.SessionToken, "", s, 5)
+		return claudeLogin(token.SessionToken, "", s, 5, -1)
 	default:
 		// 不支持的登录类型
 		return -1, "", nil, "", v1.ErrLoginFailed
@@ -157,12 +170,12 @@ func gptLogin(shareToken string, s *loginService, loginType int) (int, string, m
 	return loginType, "", nil, loginUrl, nil
 }
 
-func claudeLogin(sessionToken string, account string, s *loginService, loginType int) (int, string, map[string]interface{}, string, error) {
+func claudeLogin(sessionToken string, account string, s *loginService, loginType int, seconds int) (int, string, map[string]interface{}, string, error) {
 	if (loginType == 3 && account == "") || (loginType == 4 && account == "") {
 		// 通过 account登录时，account不能为空
 		return -1, "", nil, "", v1.ErrLoginFailed
 	}
-	loginUrl, err := util.ExecuteClaudeAuth(sessionToken, account, s.logger)
+	loginUrl, err := util.ExecuteClaudeAuth(sessionToken, account, seconds, s.logger)
 	if err != nil {
 		return -1, "", nil, "", v1.ErrLoginFailed
 	}

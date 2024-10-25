@@ -27,6 +27,8 @@
     "yes": "是",
     "no": "否",
     "apply": "应用",
-    "dataRefreshed": "数据已刷新"
+    "dataRefreshed": "数据已刷新",
+    "selectAll": "全选",
+    "deselectAll": "取消全选"
   }
 }

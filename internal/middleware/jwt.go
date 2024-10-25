@@ -4,6 +4,7 @@ import (
 	"PandoraFuclaudePlusHelper/api/v1"
 	"PandoraFuclaudePlusHelper/pkg/jwt"
 	"PandoraFuclaudePlusHelper/pkg/log"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -24,10 +25,7 @@ func StrictAuth(j *jwt.JWT, logger *log.Logger) gin.HandlerFunc {
 
 		claims, err := j.ParseToken(tokenString)
 		if err != nil {
-			logger.WithContext(ctx).Error("token error", zap.Any("data", map[string]interface{}{
-				"url":    ctx.Request.URL,
-				"params": ctx.Params,
-			}), zap.Error(err))
+			logger.Error(fmt.Sprintf("token error, url: %s, params: %s", ctx.Request.URL, ctx.Params))
 			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
 			ctx.Abort()
 			return

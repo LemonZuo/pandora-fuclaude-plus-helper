@@ -72,7 +72,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 	expTime, err := time.ParseInLocation(layout, req.ExpirationTime, loc)
 	if err != nil {
 		// 如果时间解析错误，返回400错误
-		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("invalid expiration time format: %v", err), nil)
+		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("时间格式错误: %v", err), nil)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (h *UserHandler) UpdateUser(ctx *gin.Context) {
 	expTime, err := time.ParseInLocation(layout, req.ExpirationTime, loc)
 	if err != nil {
 		// 如果时间解析错误，返回400错误
-		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("invalid expiration time format: %v", err), nil)
+		v1.HandleError(ctx, http.StatusBadRequest, fmt.Errorf("时间格式错误: %v", err), nil)
 		return
 	}
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Card,
@@ -12,13 +12,11 @@ import {
   Select,
   Space,
   Typography,
-  Checkbox, Popover, Tooltip, message
+  Checkbox, Tooltip, message, List, Drawer
 } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  DeleteOutlined,
+  CheckCircleOutlined, CloseCircleOutlined, DeleteOutlined,
   EditOutlined,
   ReloadOutlined
 } from "@ant-design/icons";
@@ -37,7 +35,7 @@ import {
 } from "@/store/userStore.ts";
 import CopyToClipboardInput from "@/pages/components/copy";
 import formatDateTime from "@/pages/components/util";
-import { User } from "#/entity.ts";
+import {User} from "#/entity.ts";
 import userService, { UserAddReq } from "@/api/services/userService.ts";
 import tokenService from "@/api/services/tokenService.ts";
 import claudeTokenService from "@/api/services/claudeTokenService.ts";
@@ -74,7 +72,7 @@ export default function UserPage() {
         'expireAt', 'createTime', 'updateTime', 'operation'];
   });
   const [tempVisibleColumns, setTempVisibleColumns] = useState<(keyof User | 'operation')[]>(visibleColumns);
-  const [popoverVisible, setPopoverVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const uniqueName = Form.useWatch('uniqueName', searchForm);
 
@@ -135,9 +133,7 @@ export default function UserPage() {
       align: 'center',
       width: 120,
       render: (text) => (
-        <Typography.Text style={{ maxWidth: 120 }} ellipsis={true}>
-          {text}
-        </Typography.Text>
+        <CopyToClipboardInput text={text} showTooltip={true}/>
       )
     },
     {
@@ -253,37 +249,35 @@ export default function UserPage() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
-  const handleVisibilityChange = (checkedValues: (keyof User | 'operation')[]) => {
-    setTempVisibleColumns(checkedValues);
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const onDrawerClose = () => {
+    setDrawerVisible(false);
+    setTempVisibleColumns(visibleColumns);
   };
 
   const applyColumnVisibility = () => {
     setVisibleColumns(tempVisibleColumns);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tempVisibleColumns));
-    setPopoverVisible(false);
+    setDrawerVisible(false);
   };
 
-  const columnVisibilityContent = (
-    <div style={{ maxWidth: 110 }}>
-      <Checkbox.Group
-        options={columns.map(col => ({ label: col.title, value: col.key })) as { label: React.ReactNode; value: keyof User | 'operation' }[]}
-        value={tempVisibleColumns}
-        onChange={handleVisibilityChange}
-        style={{display: 'block'}}
-      />
-      <div style={{ marginTop: 8, textAlign: 'right' }}>
-        <Button size="small" type="primary" onClick={applyColumnVisibility}>
-          {t('common.apply')}
-        </Button>
-      </div>
-    </div>
-  );
+  const selectAll = () => {
+    const allColumnKeys = columns.map(col => col.key as keyof User | 'operation');
+    setTempVisibleColumns(allColumnKeys);
+  };
+
+  const deselectAll = () => {
+    setTempVisibleColumns([]);
+  };
 
   const visibleColumnsConfig = columns.filter(col =>
     col.key && visibleColumns.includes(col.key as keyof User | 'operation')
   );
 
-  const { data, isLoading, refetch } = useQuery({
+  const {data, isLoading, refetch} = useQuery({
     queryKey: ['users', uniqueName],
     queryFn: () => userService.searchUserList(uniqueName),
     refetchOnMount: true,
@@ -365,17 +359,9 @@ export default function UserPage() {
         title={t("token.accountList")}
         extra={
           <Space>
-            <Popover
-              content={columnVisibilityContent}
-              title={t("token.selectColumns")}
-              trigger="click"
-              open={popoverVisible}
-              onOpenChange={setPopoverVisible}
-            >
-              <Button>
-                {t("token.adjustDisplay")}
-              </Button>
-            </Popover>
+            <Button onClick={showDrawer}>
+              {t("token.adjustDisplay")}
+            </Button>
             <Button type="primary" onClick={onCreate}>
               {t("token.createNew")}
             </Button>
@@ -392,6 +378,107 @@ export default function UserPage() {
           loading={isLoading}
         />
       </Card>
+
+      <Drawer
+        title={t("token.selectColumns")}
+        placement="right"
+        onClose={onDrawerClose}
+        open={drawerVisible}
+        width={260} // 可以稍微减小宽度，因为我们去掉了额外的描述文本
+        extra={
+          <Space>
+            <Button onClick={applyColumnVisibility} type="primary">
+              {t('common.apply')}
+            </Button>
+          </Space>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <Space>
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={selectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#e6f7ff', // 柔和的蓝色背景
+                  borderColor: '#91d5ff', // 边框颜色
+                  color: '#1890ff', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#bae7ff';
+                  e.currentTarget.style.borderColor = '#40a9ff';
+                  e.currentTarget.style.color = '#096dd9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6f7ff';
+                  e.currentTarget.style.borderColor = '#91d5ff';
+                  e.currentTarget.style.color = '#1890ff';
+                }}
+              >
+                {t('common.selectAll')}
+              </Button>
+
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={deselectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#fff1f0', // 柔和的红色背景
+                  borderColor: '#ffa39e', // 边框颜色
+                  color: '#ff4d4f', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffa39e';
+                  e.currentTarget.style.borderColor = '#ff7875';
+                  e.currentTarget.style.color = '#a8071a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff1f0';
+                  e.currentTarget.style.borderColor = '#ffa39e';
+                  e.currentTarget.style.color = '#ff4d4f';
+                }}
+              >
+                {t('common.deselectAll')}
+              </Button>
+            </Space>
+          </div>
+          <List
+            style={{
+              flexGrow: 1,
+              overflowY: 'auto',
+            }}
+            dataSource={columns}
+            renderItem={col => (
+              <List.Item style={{ border: 'none', padding: '8px 0' }}> {/* 移除边框 */}
+                <Checkbox
+                  checked={tempVisibleColumns.includes(col.key as keyof User | 'operation')}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      setTempVisibleColumns([...tempVisibleColumns, col.key as keyof User | 'operation']);
+                    } else {
+                      setTempVisibleColumns(tempVisibleColumns.filter(k => k !== col.key));
+                    }
+                  }}
+                  style={{ width: '100%' }} // 让 Checkbox 占满整行
+                >
+                  {typeof col.title === 'function' ? col.title({}) : col.title}
+                </Checkbox>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Drawer>
+
       <UserModal {...userModalProps} />
     </Space>
   );

@@ -155,11 +155,15 @@ func (s *openaiTokenService) RefreshByToken(ctx context.Context, token *model.Op
 		now := time.Now()
 		// 默认设置为AccessToken
 		account.ShareToken = his.AccessToken
-		shareToken, expireIn, err := util.GenShareToken(his.AccessToken,
+		shareToken, shareTokenEncrypt, expireIn, err := util.GenShareToken(his.AccessToken,
 			account.Account,
 			0,
 			account.Gpt35Limit,
 			account.Gpt4Limit,
+			account.Gpt4oLimit,
+			account.Gpt4oMiniLimit,
+			account.O1Limit,
+			account.O1MiniLimit,
 			account.ShowConversations == 1,
 			false,
 			false,
@@ -170,6 +174,7 @@ func (s *openaiTokenService) RefreshByToken(ctx context.Context, token *model.Op
 			continue
 		}
 		account.ShareToken = shareToken
+		account.ShareTokenEncrypt = shareTokenEncrypt
 		account.ExpireAt = time.Unix(expireIn, 0)
 		account.UpdateTime = now
 		err = s.openaiAccountRepository.Update(ctx, account)

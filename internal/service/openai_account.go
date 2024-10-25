@@ -62,22 +62,30 @@ func (s *openaiAccountService) Update(ctx context.Context, account *model.Openai
 	his.ExpirationTime = account.ExpirationTime
 	his.Gpt35Limit = account.Gpt35Limit
 	his.Gpt4Limit = account.Gpt4Limit
+	his.Gpt4oLimit = account.Gpt4oLimit
+	his.Gpt4oMiniLimit = account.Gpt4oMiniLimit
+	his.O1Limit = account.O1Limit
+	his.O1MiniLimit = account.O1MiniLimit
 	his.ShowConversations = account.ShowConversations
 	his.TemporaryChat = account.TemporaryChat
-	account.ShareToken = token.AccessToken
+	// account.ShareToken = token.AccessToken
 	account.ExpireAt = now.Add(time.Hour * 24 * 365)
 	his.UpdateTime = now
 	his.Status = account.Status
 
 	// 生成共享token
-	shareToken, expireIn, err := util.GenShareToken(token.AccessToken,
+	shareToken, shareTokenEncrypt, expireIn, err := util.GenShareToken(token.AccessToken,
 		account.Account,
 		0,
 		account.Gpt35Limit,
 		account.Gpt4Limit,
+		account.Gpt4oLimit,
+		account.Gpt4oMiniLimit,
+		account.O1Limit,
+		account.O1MiniLimit,
 		account.ShowConversations == 1,
 		false,
-		true,
+		false,
 		account.TemporaryChat == 1,
 		s.logger)
 	if err != nil {
@@ -86,6 +94,7 @@ func (s *openaiAccountService) Update(ctx context.Context, account *model.Openai
 	}
 	his.TokenID = account.TokenID
 	his.ShareToken = shareToken
+	his.ShareTokenEncrypt = shareTokenEncrypt
 	his.ExpireAt = time.Unix(expireIn, 0)
 
 	err = s.openaiAccountRepository.Update(ctx, his)
@@ -111,14 +120,18 @@ func (s *openaiAccountService) Create(ctx context.Context, account *model.Openai
 	account.ShareToken = token.AccessToken
 	account.ExpireAt = now.Add(time.Hour * 24 * 365)
 	// 生成共享token
-	shareToken, expireIn, err := util.GenShareToken(token.AccessToken,
+	shareToken, shareTokenEncrypt, expireIn, err := util.GenShareToken(token.AccessToken,
 		account.Account,
 		0,
 		account.Gpt35Limit,
 		account.Gpt4Limit,
+		account.Gpt4oLimit,
+		account.Gpt4oMiniLimit,
+		account.O1Limit,
+		account.O1MiniLimit,
 		account.ShowConversations == 1,
 		false,
-		true,
+		false,
 		account.TemporaryChat == 1,
 		s.logger)
 	if err != nil {
@@ -126,6 +139,7 @@ func (s *openaiAccountService) Create(ctx context.Context, account *model.Openai
 		return err
 	}
 	account.ShareToken = shareToken
+	account.ShareTokenEncrypt = shareTokenEncrypt
 	account.ExpireAt = time.Unix(expireIn, 0)
 	account.CreateTime = now
 	account.UpdateTime = now
@@ -163,14 +177,18 @@ func (s *openaiAccountService) DeleteAccount(ctx context.Context, id int64) erro
 		return fmt.Errorf("token not found")
 	}
 
-	shareToken, expireIn, err := util.GenShareToken(token.AccessToken,
+	shareToken, _, expireIn, err := util.GenShareToken(token.AccessToken,
 		account.Account,
 		-1,
 		0,
 		0,
+		0,
+		0,
+		0,
+		0,
 		false,
 		false,
-		true,
+		false,
 		account.TemporaryChat == 1,
 		s.logger)
 	s.logger.Info("DeleteAccount", zap.Any("shareToken", shareToken), zap.Any("expireIn", expireIn))
@@ -289,13 +307,18 @@ func (s *openaiAccountService) DisableAccount(ctx context.Context, id int64) err
 		return fmt.Errorf("token not found")
 	}
 
-	_, _, err = util.GenShareToken(token.AccessToken,
+	_, _, _, err = util.GenShareToken(token.AccessToken,
 		account.Account,
-		-1, account.Gpt35Limit,
+		-1,
+		account.Gpt35Limit,
 		account.Gpt4Limit,
+		account.Gpt4oLimit,
+		account.Gpt4oMiniLimit,
+		account.O1Limit,
+		account.O1MiniLimit,
 		account.ShowConversations == 1,
-		true,
-		true,
+		false,
+		false,
 		account.TemporaryChat == 1,
 		s.logger)
 	if err != nil {
@@ -337,14 +360,18 @@ func (s *openaiAccountService) EnableAccount(ctx context.Context, id int64) erro
 	}
 
 	// 生成共享token
-	shareToken, expireIn, err := util.GenShareToken(token.AccessToken,
+	shareToken, shareTokenEncrypt, expireIn, err := util.GenShareToken(token.AccessToken,
 		account.Account,
 		0,
 		account.Gpt35Limit,
 		account.Gpt4Limit,
+		account.Gpt4oLimit,
+		account.Gpt4oMiniLimit,
+		account.O1Limit,
+		account.O1MiniLimit,
 		account.ShowConversations == 1,
 		false,
-		true,
+		false,
 		account.TemporaryChat == 1,
 		s.logger)
 	if err != nil {
@@ -353,6 +380,7 @@ func (s *openaiAccountService) EnableAccount(ctx context.Context, id int64) erro
 	}
 	now := time.Now()
 	account.ShareToken = shareToken
+	account.ShareTokenEncrypt = shareTokenEncrypt
 	account.ExpireAt = time.Unix(expireIn, 0)
 	account.Status = 1
 	// 有效期一个月

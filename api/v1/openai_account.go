@@ -15,6 +15,10 @@ type AddOpenaiAccountRequest struct {
 	Status            int    `json:"status"`
 	Gpt35Limit        int    `json:"gpt35Limit"`
 	Gpt4Limit         int    `json:"gpt4Limit"`
+	Gpt4oLimit        int    `json:"gpt4oLimit"`
+	Gpt4oMiniLimit    int    `json:"gpt4oMiniLimit"`
+	O1Limit           int    `json:"o1Limit"`
+	O1MiniLimit       int    `json:"o1MiniLimit"`
 	ShowConversations int    `json:"showConversations"`
 	TemporaryChat     int    `json:"temporaryChat"`
 	TokenID           int64  `json:"tokenId"`

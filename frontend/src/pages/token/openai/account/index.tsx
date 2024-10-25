@@ -1,11 +1,10 @@
 import {
   Button,
-  Card, Checkbox, CheckboxOptionType,
-  Col,
+  Card, Checkbox, Col, Drawer,
   Form,
   Input,
+  List,
   message,
-  Popover,
   Row,
   Space, Tooltip,
 } from 'antd';
@@ -14,9 +13,7 @@ import {useEffect, useState} from 'react';
 
 import {OpenaiAccount} from '#/entity.ts';
 import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  EditOutlined,
+  CheckCircleOutlined, CloseCircleOutlined, EditOutlined,
   ExclamationCircleOutlined,
   MinusCircleOutlined,
   OpenAIFilled,
@@ -47,12 +44,12 @@ export default function SharePage() {
     const storedColumns = localStorage.getItem(LOCAL_STORAGE_KEY);
     return storedColumns
       ? JSON.parse(storedColumns)
-      : ['tokenId', 'account', 'status', 'expirationTime',
-        'shareToken', 'gpt35Limit', 'gpt4Limit', 'showConversations',
-        'temporaryChat', 'expireAt', 'createTime', 'updateTime', 'operation'];
+      : ['tokenId', 'account', 'status', 'expirationTime','shareToken',
+        'gpt35Limit', 'gpt4Limit', 'gpt4oLimit', 'gpt4oMiniLimit', 'o1Limit', 'o1MiniLimit',
+        'showConversations','temporaryChat', 'expireAt', 'createTime', 'updateTime', 'operation'];
   });
   const [tempVisibleColumns, setTempVisibleColumns] = useState<(keyof OpenaiAccount | 'operation')[]>(visibleColumns);
-  const [popoverVisible, setPopoverVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const {t} = useTranslation()
 
@@ -68,6 +65,10 @@ export default function SharePage() {
       expirationTime: '',
       gpt35Limit: -1,
       gpt4Limit: -1,
+      gpt4oLimit: -1,
+      gpt4oMiniLimit: -1,
+      o1Limit: -1,
+      o1MiniLimit: -1,
       showConversations: 0,
       temporaryChat: 0,
     },
@@ -121,7 +122,10 @@ export default function SharePage() {
       key: 'account',
       dataIndex: 'account',
       align: 'center',
-      width: 120
+      width: 120,
+      render: (text) => (
+        <CopyToClipboardInput text={text} showTooltip={true} />
+      )
     },
     {
       title: t('token.accountStatus'),
@@ -145,10 +149,30 @@ export default function SharePage() {
         <CopyToClipboardInput text={text}/>
       ),
     },
+    // {
+    //   title: t('token.gpt35Limit'),
+    //   key: 'gpt35Limit',
+    //   dataIndex: 'gpt35Limit',
+    //   align: 'center',
+    //   width: 120,
+    //   render: (count) => {
+    //     if (count === 0) {
+    //       return <Tooltip title={t('token.notAvailable')}><CloseCircleOutlined style={{ color: 'red' }} /></Tooltip>;
+    //     } else if (count < 0) {
+    //       return <Tooltip title={t('token.unlimitedTimes')}><MinusCircleOutlined style={{ color: 'green' }} /></Tooltip>;
+    //     } else {
+    //       return (
+    //         <Tooltip title={`${t('token.limitedTimes')}:${count}`}>
+    //           <ExclamationCircleOutlined style={{ color: 'orange' }} />
+    //         </Tooltip>
+    //       );
+    //     }
+    //   },
+    // },
     {
-      title: t('token.gpt35Limit'),
-      key: 'gpt35Limit',
-      dataIndex: 'gpt35Limit',
+      title: t('token.gpt4Limit'),
+      key: 'gpt4Limit',
+      dataIndex: 'gpt4Limit',
       align: 'center',
       width: 120,
       render: (count) => {
@@ -166,9 +190,69 @@ export default function SharePage() {
       },
     },
     {
-      title: t('token.gpt4Limit'),
-      key: 'gpt4Limit',
-      dataIndex: 'gpt4Limit',
+      title: t('token.gpt4oLimit'),
+      key: 'gpt4oLimit',
+      dataIndex: 'gpt4oLimit',
+      align: 'center',
+      width: 120,
+      render: (count) => {
+        if (count === 0) {
+          return <Tooltip title={t('token.notAvailable')}><CloseCircleOutlined style={{ color: 'red' }} /></Tooltip>;
+        } else if (count < 0) {
+          return <Tooltip title={t('token.unlimitedTimes')}><MinusCircleOutlined style={{ color: 'green' }} /></Tooltip>;
+        } else {
+          return (
+            <Tooltip title={`${t('token.limitedTimes')}:${count}`}>
+              <ExclamationCircleOutlined style={{ color: 'orange' }} />
+            </Tooltip>
+          );
+        }
+      },
+    },
+    {
+      title: t('token.gpt4oMiniLimit'),
+      key: 'gpt4oMiniLimit',
+      dataIndex: 'gpt4oMiniLimit',
+      align: 'center',
+      width: 130,
+      render: (count) => {
+        if (count === 0) {
+          return <Tooltip title={t('token.notAvailable')}><CloseCircleOutlined style={{ color: 'red' }} /></Tooltip>;
+        } else if (count < 0) {
+          return <Tooltip title={t('token.unlimitedTimes')}><MinusCircleOutlined style={{ color: 'green' }} /></Tooltip>;
+        } else {
+          return (
+            <Tooltip title={`${t('token.limitedTimes')}:${count}`}>
+              <ExclamationCircleOutlined style={{ color: 'orange' }} />
+            </Tooltip>
+          );
+        }
+      },
+    },
+    {
+      title: t('token.o1Limit'),
+      key: 'o1Limit',
+      dataIndex: 'o1Limit',
+      align: 'center',
+      width: 120,
+      render: (count) => {
+        if (count === 0) {
+          return <Tooltip title={t('token.notAvailable')}><CloseCircleOutlined style={{ color: 'red' }} /></Tooltip>;
+        } else if (count < 0) {
+          return <Tooltip title={t('token.unlimitedTimes')}><MinusCircleOutlined style={{ color: 'green' }} /></Tooltip>;
+        } else {
+          return (
+            <Tooltip title={`${t('token.limitedTimes')}:${count}`}>
+              <ExclamationCircleOutlined style={{ color: 'orange' }} />
+            </Tooltip>
+          );
+        }
+      },
+    },
+    {
+      title: t('token.o1MiniLimit'),
+      key: 'o1MiniLimit',
+      dataIndex: 'o1MiniLimit',
       align: 'center',
       width: 120,
       render: (count) => {
@@ -277,31 +361,29 @@ export default function SharePage() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
-  const handleVisibilityChange = (checkedValues: (keyof OpenaiAccount | 'operation')[]) => {
-    setTempVisibleColumns(checkedValues);
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const onDrawerClose = () => {
+    setDrawerVisible(false);
+    setTempVisibleColumns(visibleColumns);
   };
 
   const applyColumnVisibility = () => {
     setVisibleColumns(tempVisibleColumns);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tempVisibleColumns));
-    setPopoverVisible(false);
+    setDrawerVisible(false);
   };
 
-  const columnVisibilityContent = (
-    <div style={{ maxWidth: 120 }}>
-      <Checkbox.Group
-        options={columns.map(col => ({ label: col.title, value: col.key })) as CheckboxOptionType<keyof OpenaiAccount | "operation">[]}
-        value={tempVisibleColumns}
-        onChange={handleVisibilityChange}
-        style={{display: 'block'}}
-      />
-      <div style={{ marginTop: 8, textAlign: 'right' }}>
-        <Button size="small" type="primary" onClick={applyColumnVisibility}>
-          {t('common.apply')}
-        </Button>
-      </div>
-    </div>
-  );
+  const selectAll = () => {
+    const allColumnKeys = columns.map(col => col.key as keyof OpenaiAccount | 'operation');
+    setTempVisibleColumns(allColumnKeys);
+  };
+
+  const deselectAll = () => {
+    setTempVisibleColumns([]);
+  };
 
   const visibleColumnsConfig = columns.filter(col =>
     col.key && visibleColumns.includes(col.key as keyof OpenaiAccount | 'operation')
@@ -316,6 +398,10 @@ export default function SharePage() {
       onOk: (values: OpenaiAccount, callback) => {
         values.gpt35Limit = parseInt(values.gpt35Limit as any);
         values.gpt4Limit = parseInt(values.gpt4Limit as any);
+        values.gpt4oLimit = parseInt(values.gpt4oLimit as any);
+        values.gpt4oMiniLimit = parseInt(values.gpt4oMiniLimit as any);
+        values.o1Limit = parseInt(values.o1Limit as any);
+        values.o1MiniLimit = parseInt(values.o1MiniLimit as any);
         updateShareMutation.mutate(values, {
           onSuccess: () => {
             setShareModalProps((prev) => ({...prev, show: false}));
@@ -377,17 +463,9 @@ export default function SharePage() {
         title={t('token.shareList')}
         extra={
           <Space>
-            <Popover
-              content={columnVisibilityContent}
-              title={t("token.selectColumns")}
-              trigger="click"
-              open={popoverVisible}
-              onOpenChange={setPopoverVisible}
-            >
-              <Button>
-                {t("token.adjustDisplay")}
-              </Button>
-            </Popover>
+            <Button onClick={showDrawer}>
+              {t("token.adjustDisplay")}
+            </Button>
           </Space>
         }
       >
@@ -401,6 +479,107 @@ export default function SharePage() {
           loading={isLoading}
         />
       </Card>
+
+      <Drawer
+        title={t("token.selectColumns")}
+        placement="right"
+        onClose={onDrawerClose}
+        open={drawerVisible}
+        width={260} // 可以稍微减小宽度，因为我们去掉了额外的描述文本
+        extra={
+          <Space>
+            <Button onClick={applyColumnVisibility} type="primary">
+              {t('common.apply')}
+            </Button>
+          </Space>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <Space>
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={selectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#e6f7ff', // 柔和的蓝色背景
+                  borderColor: '#91d5ff', // 边框颜色
+                  color: '#1890ff', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#bae7ff';
+                  e.currentTarget.style.borderColor = '#40a9ff';
+                  e.currentTarget.style.color = '#096dd9';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e6f7ff';
+                  e.currentTarget.style.borderColor = '#91d5ff';
+                  e.currentTarget.style.color = '#1890ff';
+                }}
+              >
+                {t('common.selectAll')}
+              </Button>
+
+              <Button
+                size="small" // 增大按钮尺寸
+                type="default" // 使用默认类型，避免过于鲜艳
+                onClick={deselectAll}
+                style={{
+                  width: '100px', // 设置按钮宽度
+                  height: '40px',  // 设置按钮高度
+                  borderRadius: '8px', // 圆角调整
+                  backgroundColor: '#fff1f0', // 柔和的红色背景
+                  borderColor: '#ffa39e', // 边框颜色
+                  color: '#ff4d4f', // 文字颜色
+                  transition: 'background-color 0.3s, border-color 0.3s, color 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffa39e';
+                  e.currentTarget.style.borderColor = '#ff7875';
+                  e.currentTarget.style.color = '#a8071a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#fff1f0';
+                  e.currentTarget.style.borderColor = '#ffa39e';
+                  e.currentTarget.style.color = '#ff4d4f';
+                }}
+              >
+                {t('common.deselectAll')}
+              </Button>
+            </Space>
+          </div>
+          <List
+            style={{
+              flexGrow: 1,
+              overflowY: 'auto',
+            }}
+            dataSource={columns}
+            renderItem={col => (
+              <List.Item style={{ border: 'none', padding: '8px 0' }}> {/* 移除边框 */}
+                <Checkbox
+                  checked={tempVisibleColumns.includes(col.key as keyof OpenaiAccount | 'operation')}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    if (checked) {
+                      setTempVisibleColumns([...tempVisibleColumns, col.key as keyof OpenaiAccount | 'operation']);
+                    } else {
+                      setTempVisibleColumns(tempVisibleColumns.filter(k => k !== col.key));
+                    }
+                  }}
+                  style={{ width: '100%' }} // 让 Checkbox 占满整行
+                >
+                  {typeof col.title === 'function' ? col.title({}) : col.title}
+                </Checkbox>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Drawer>
+
       <AccountModal {...shareModalProps}/>
     </Space>
   );

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	httpcore "net/http"
+	"time"
 )
 
 func NewHTTPServer(
@@ -28,7 +29,7 @@ func NewHTTPServer(
 		gin.Default(),
 		logger,
 		http.WithServerHost(commonConfig.GetConfig().HttpHost),
-		http.WithServerPort(commonConfig.GetConfig().HttpPort),
+		http.WithServerPort(commonConfig.GetConfig().ApiPort),
 	)
 
 	s.Use(static.Serve("/", static.EmbedFolder(PandoraFuclaudePlusHelper.EmbedFrontendFS, "frontend/dist")))
@@ -43,9 +44,9 @@ func NewHTTPServer(
 					"message": "ok",
 					"status":  0,
 					"data": gin.H{
-						"version":    "1.0.0",
 						"systemName": "PandoraFuclaudePlusHelper",
-						"startTime":  commonConfig.GetConfig().StartTime.Format("2006-01-02 15:04:05"),
+						"version":    commonConfig.GetConfig().Version,
+						"startTime":  commonConfig.GetConfig().StartTime.Format(time.DateTime),
 						"status":     true,
 					},
 				})

@@ -40,7 +40,7 @@ function DashboardLayout() {
 
   const verticalLayout = (
     <>
-      <Header offsetTop={offsetTop} />
+      <Header offsetTop={offsetTop}/>
       <div className="z-50 hidden h-full flex-shrink-0 md:block">
         <Nav />
       </div>

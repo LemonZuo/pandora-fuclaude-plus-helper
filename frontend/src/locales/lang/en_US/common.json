@@ -27,7 +27,9 @@
     "yes": "Yes",
     "no": "No",
     "apply": "Apply",
-    "dataRefreshed": "Data has been refreshed"
+    "dataRefreshed": "Data has been refreshed",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All"
   },
   "%namespace%:password": "",
   "%namespace%:shareStatus": ""

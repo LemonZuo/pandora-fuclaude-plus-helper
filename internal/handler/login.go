@@ -38,7 +38,7 @@ func (h *LoginHandler) Login(ctx *gin.Context) {
 
 	loginType, token, rules, loginUrl, err := h.loginService.Login(ctx, &req)
 	if err != nil {
-		v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrBadRequest, nil)
+		v1.HandleError(ctx, http.StatusUnauthorized, err, nil)
 		return
 	}
 	v1.HandleSuccess(ctx, v1.LoginResponseData{
